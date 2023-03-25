@@ -38,4 +38,5 @@ out/
 
 ### manual testing ###
 /sql/
+/http/
 /db/data/
