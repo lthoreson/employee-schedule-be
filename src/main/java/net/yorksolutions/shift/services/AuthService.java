@@ -18,7 +18,7 @@ public class AuthService {
         return token;
     }
 
-    // return user id for token, else null
+    // return user id for token, else throw
     public UUID checkToken(UUID token) {
         final UUID accountId = tokenMap.get(token);
         if (accountId == null) {

@@ -18,13 +18,11 @@ public class Account {
     private String username;
     @JsonIgnore
     private String password;
-    private String user_role;
 
-    public Account(UUID id, String username, String password, String user_role) {
+    public Account(UUID id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.user_role = user_role;
     }
 
     public Account() {
