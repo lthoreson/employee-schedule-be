@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
 
-import net.yorksolutions.shift.models.Role;
+import net.yorksolutions.shift.models.BranchRole;
 
-public interface RoleRepository extends CrudRepository<Role, UUID> {
+public interface BranchRoleRepository extends CrudRepository<BranchRole, UUID> {
 
 }

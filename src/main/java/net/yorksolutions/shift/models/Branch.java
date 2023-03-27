@@ -1,9 +1,11 @@
 package net.yorksolutions.shift.models;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,6 +16,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Branch {
     @Id
     @GeneratedValue
@@ -21,10 +24,9 @@ public class Branch {
     @Column(unique = true)
     private String name;
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Role> roles;
+    private List<BranchRole> roles;
     @ManyToMany
-    @JsonManagedReference
-    private List<Profile> profiles;
+    private Set<Profile> profiles;
     @OneToMany
     private List<Recurring> recurrings;
 
@@ -44,11 +46,11 @@ public class Branch {
         this.name = name;
     }
 
-    public List<Role> getRoles() {
+    public List<BranchRole> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(List<BranchRole> roles) {
         this.roles = roles;
     }
 
@@ -60,11 +62,11 @@ public class Branch {
         this.recurrings = recurrings;
     }
 
-    public List<Profile> getProfiles() {
+    public Set<Profile> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(List<Profile> profiles) {
+    public void setProfiles(Set<Profile> profiles) {
         this.profiles = profiles;
     }
 }

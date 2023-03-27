@@ -2,16 +2,18 @@ package net.yorksolutions.shift.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import net.yorksolutions.shift.dto.BranchPreview;
 import net.yorksolutions.shift.models.Branch;
 import net.yorksolutions.shift.models.Profile;
-import net.yorksolutions.shift.models.Role;
+import net.yorksolutions.shift.models.BranchRole;
 import net.yorksolutions.shift.repositories.BranchRepository;
 import net.yorksolutions.shift.repositories.ProfileRepository;
-import net.yorksolutions.shift.repositories.RoleRepository;
 
 @Service
 public class BranchService {
@@ -35,12 +37,12 @@ public class BranchService {
         newBranch.setName(name);
 
         // assign an admin role in the branch
-        final Role newAdminRole = new Role();
+        final BranchRole newAdminRole = new BranchRole();
         newAdminRole.setName("admin");
         newAdminRole.setPeople(List.of(myProfile));
         newBranch.setRoles(List.of(newAdminRole));
         // add my profile too
-        newBranch.setProfiles(List.of(myProfile));
+        newBranch.setProfiles(Set.of(myProfile));
 
         // save changes to repositories for branch and profile
         final Branch savedBranch = repository.save(newBranch);
@@ -49,9 +51,32 @@ public class BranchService {
         return savedBranch;
     }
 
-    public List<Branch> getMyBranches(UUID token) {
-        final UUID accountId = authService.checkToken(token);
+    // find a person's roles within a branch
+    public List<String> getMyRoles(Branch branch, Profile profile) {
+        System.out.println(branch.getName());
+        System.out.println(profile.getId());
+        final var myRoles = new ArrayList<String>();
+        for (BranchRole r : branch.getRoles()) {
+            for (Profile u : r.getPeople()) {
+                System.out.println(u.getId().toString());
+            }
+            final List<UUID> profileIds = r.getPeople().stream().map(person -> person.getId())
+                    .collect(Collectors.toList());
+            if (profileIds.contains(profile.getId())) {
+                myRoles.add(r.getName());
+                System.out.println(r.getName());
+            }
+        }
+        return myRoles;
+    }
 
-        return new ArrayList<Branch>();
+    public List<BranchPreview> getMyBranches(UUID token) {
+        final UUID accountId = authService.checkToken(token);
+        final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        System.out.println(myProfile.toString());
+        final Set<Branch> myBranches = myProfile.getBranches();
+        return myBranches.stream()
+                .map(branch -> new BranchPreview(branch.getId(), branch.getName(), getMyRoles(branch, myProfile)))
+                .collect(Collectors.toList());
     }
 }

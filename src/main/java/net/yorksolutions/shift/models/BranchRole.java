@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 
 @Entity
-public class Role {
+public class BranchRole {
     @Id
     @GeneratedValue
     private UUID id;

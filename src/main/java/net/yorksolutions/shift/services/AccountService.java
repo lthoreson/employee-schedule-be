@@ -1,6 +1,6 @@
 package net.yorksolutions.shift.services;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -43,7 +43,7 @@ public class AccountService {
 
         final Profile newProfile = new Profile();
         newProfile.setAccountId(savedAccount.getId());
-        newProfile.setBranches(new ArrayList<Branch>());
+        newProfile.setBranches(new HashSet<Branch>());
         profileRepository.save(newProfile);
 
         return authService.addToken(savedAccount.getId());

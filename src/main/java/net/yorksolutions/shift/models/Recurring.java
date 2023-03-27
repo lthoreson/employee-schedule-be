@@ -14,7 +14,7 @@ public class Recurring {
     @Id
     @GeneratedValue
     private UUID id;
-    private UUID role;
+    private UUID branchRole;
     @ElementCollection
     private List<UUID> employee;
     private Date startTime;
