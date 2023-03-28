@@ -53,18 +53,12 @@ public class BranchService {
 
     // find a person's roles within a branch
     public List<String> getMyRoles(Branch branch, Profile profile) {
-        System.out.println(branch.getName());
-        System.out.println(profile.getId());
         final var myRoles = new ArrayList<String>();
         for (BranchRole r : branch.getRoles()) {
-            for (Profile u : r.getPeople()) {
-                System.out.println(u.getId().toString());
-            }
             final List<UUID> profileIds = r.getPeople().stream().map(person -> person.getId())
                     .collect(Collectors.toList());
             if (profileIds.contains(profile.getId())) {
                 myRoles.add(r.getName());
-                System.out.println(r.getName());
             }
         }
         return myRoles;
@@ -73,8 +67,7 @@ public class BranchService {
     public List<BranchPreview> getMyBranches(UUID token) {
         final UUID accountId = authService.checkToken(token);
         final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
-        System.out.println(myProfile.toString());
-        final Set<Branch> myBranches = myProfile.getBranches();
+        final Set<Branch> myBranches = Set.of(new Branch()); // myProfile.getBranches();
         return myBranches.stream()
                 .map(branch -> new BranchPreview(branch.getId(), branch.getName(), getMyRoles(branch, myProfile)))
                 .collect(Collectors.toList());

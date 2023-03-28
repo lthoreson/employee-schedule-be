@@ -1,6 +1,5 @@
 package net.yorksolutions.shift.services;
 
-import java.util.HashSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -10,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import net.yorksolutions.shift.dto.Credentials;
 import net.yorksolutions.shift.models.Account;
-import net.yorksolutions.shift.models.Branch;
 import net.yorksolutions.shift.models.Profile;
 import net.yorksolutions.shift.repositories.AccountRepository;
 import net.yorksolutions.shift.repositories.ProfileRepository;
@@ -43,7 +41,9 @@ public class AccountService {
 
         final Profile newProfile = new Profile();
         newProfile.setAccountId(savedAccount.getId());
-        newProfile.setBranches(new HashSet<Branch>());
+        newProfile.setFirstName("");
+        newProfile.setLastName("");
+        // newProfile.setBranches(new HashSet<Branch>());
         profileRepository.save(newProfile);
 
         return authService.addToken(savedAccount.getId());
@@ -59,8 +59,41 @@ public class AccountService {
         }
     }
 
-    public Account getAccount(UUID token) {
+    public Credentials getAccount(UUID token) {
         final UUID accountId = authService.checkToken(token);
-        return repository.findById(accountId).orElseThrow();
+        final Account oldAccount = repository.findById(accountId).orElseThrow();
+        final Profile oldProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        final var newCred = new Credentials();
+        newCred.setFirstName(oldProfile.getFirstName());
+        newCred.setLastName(oldProfile.getLastName());
+        newCred.setUsername(oldAccount.getUsername());
+        return newCred;
+    }
+
+    public Credentials modAccount(Credentials cred, UUID token) {
+        final UUID accountId = authService.checkToken(token);
+        final Account oldAccount = repository.findById(accountId).orElseThrow();
+        final Profile oldProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+
+        if (cred.firstName != null && cred.firstName.length() > 0) {
+            oldProfile.setFirstName(cred.firstName);
+        }
+        if (cred.lastName != null && cred.lastName.length() > 0) {
+            oldProfile.setLastName(cred.lastName);
+        }
+        if (cred.username != null && cred.username.length() > 0) {
+            oldAccount.setUsername(cred.username);
+        }
+        if (cred.password != null && cred.password.length() > 0) {
+            oldAccount.setPassword(cred.password);
+        }
+        profileRepository.save(oldProfile);
+        repository.save(oldAccount);
+
+        final var newCred = new Credentials();
+        newCred.setFirstName(oldProfile.getFirstName());
+        newCred.setLastName(oldProfile.getLastName());
+        newCred.setUsername(oldAccount.getUsername());
+        return newCred;
     }
 }
