@@ -71,8 +71,18 @@ public class ShiftService {
         final UUID accountId = authService.checkToken(token);
         final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
         final Shift myShift = repository.findById(shift.getId()).orElseThrow();
-        if (myShift.getProfile().getId().equals(myProfile.getId())) {
+        if (myProfile.equals(myShift.getProfile())) {
             myShift.setProfile(null);
+        }
+        return repository.save(myShift);
+    }
+
+    public Shift claimShift(Shift shift, UUID token) {
+        final UUID accountId = authService.checkToken(token);
+        final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        final Shift myShift = repository.findById(shift.getId()).orElseThrow();
+        if (myShift.getProfile() == null) {
+            myShift.setProfile(myProfile);
         }
         return repository.save(myShift);
     }

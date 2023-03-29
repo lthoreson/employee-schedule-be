@@ -64,4 +64,15 @@ public class ShiftController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
+
+    @PutMapping("/claim")
+    public Shift claimShift(@RequestBody Shift shift,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String requestHeader) {
+        try {
+            final UUID token = UUID.fromString(requestHeader);
+            return service.claimShift(shift, token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 }
