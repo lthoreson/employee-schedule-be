@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +49,17 @@ public class ShiftController {
         try {
             final var date = LocalDate.parse(dateParam);
             return service.getShifts(date);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @PutMapping("/surrender")
+    public Shift surrenderShift(@RequestBody Shift shift,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String requestHeader) {
+        try {
+            final UUID token = UUID.fromString(requestHeader);
+            return service.surrenderShift(shift, token);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

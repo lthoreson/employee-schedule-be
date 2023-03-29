@@ -21,14 +21,16 @@ import net.yorksolutions.shift.repositories.ShiftRepository;
 public class ShiftService {
     private final ShiftRepository repository;
     private final ProfileRepository profileRepository;
+    private final AuthService authService;
 
-    public ShiftService(ShiftRepository repository, ProfileRepository profileRepository) {
+    public ShiftService(ShiftRepository repository, ProfileRepository profileRepository, AuthService authService) {
         this.repository = repository;
         this.profileRepository = profileRepository;
+        this.authService = authService;
     }
 
     public Shift createShift(Shift newShift, UUID token) {
-        // todo: check permissions
+        // todo: check admin permissions
         final Profile shiftProfile = profileRepository.findById(newShift.getProfile().getId()).orElseThrow();
         newShift.setProfile(shiftProfile);
         return repository.save(newShift);
@@ -44,15 +46,30 @@ public class ShiftService {
         final Iterable<Profile> profiles = profileRepository.findByOrderByLastName();
         final List<Shift> shifts = repository.findAllByDateBetween(weekStart, weekEnd);
 
-        // build array of shift arrays for each profile
+        // build array of shift arrays for each profile, and one for available shifts
         final List<List<Shift>> shiftList = new ArrayList<>();
+        final List<Shift> availableShifts = shifts.stream().filter(s -> s.getProfile() == null)
+                .collect(Collectors.toList());
+        if (availableShifts.size() > 0) {
+            shiftList.add(availableShifts);
+        }
         for (Profile p : profiles) {
-            final var filtered = shifts.stream().filter(s -> s.getProfile().getId().equals(p.getId()))
+            final List<Shift> filtered = shifts.stream().filter(s -> p.equals(s.getProfile()))
                     .collect(Collectors.toList());
             if (filtered.size() > 0) {
                 shiftList.add(filtered);
             }
         }
         return shiftList;
+    }
+
+    public Shift surrenderShift(Shift shift, UUID token) {
+        final UUID accountId = authService.checkToken(token);
+        final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        final Shift myShift = repository.findById(shift.getId()).orElseThrow();
+        if (myShift.getProfile().getId().equals(myProfile.getId())) {
+            myShift.setProfile(null);
+        }
+        return repository.save(myShift);
     }
 }
