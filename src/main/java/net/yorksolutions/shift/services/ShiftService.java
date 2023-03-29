@@ -52,18 +52,17 @@ public class ShiftService {
 
         // build array of shift arrays for each profile, and one for available shifts
         final List<List<Shift>> shiftList = new ArrayList<>();
-        final List<Shift> availableShifts = shifts.stream().filter(s -> s.getProfile() == null)
-                .collect(Collectors.toList());
-        if (availableShifts.size() > 0) {
-            shiftList.add(availableShifts);
+        final List<Shift> availableShiftsNew = repository.findAllByProfileAndDateBetween(null, weekStart, weekEnd);
+        if (availableShiftsNew.size() > 0) {
+            shiftList.add(availableShiftsNew);
         }
         for (Profile p : profiles) {
-            final List<Shift> filtered = shifts.stream().filter(s -> p.equals(s.getProfile()))
-                    .collect(Collectors.toList());
+            final List<Shift> filtered = repository.findAllByProfileAndDateBetween(p, weekStart, weekEnd);
             if (filtered.size() > 0) {
                 shiftList.add(filtered);
             }
         }
+
         return shiftList;
     }
 

@@ -21,6 +21,9 @@ public interface ShiftRepository extends CrudRepository<Shift, UUID> {
                         LocalDate startDate,
                         LocalDate endDate);
 
+        List<Shift> findAllByProfileAndDateBetween(Profile profile, LocalDate startDate,
+                        LocalDate endDate);
+
         // @Query(value = "SELECT s FROM shift s WHERE s.profile_id=?3 AND s.date
         // BETWEEN ?1 AND ?2", nativeQuery = true)
         // List<Shift> findAllByCustom(LocalDate startDate, LocalDate endDate, UUID
