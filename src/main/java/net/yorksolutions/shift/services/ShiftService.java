@@ -31,8 +31,12 @@ public class ShiftService {
 
     public Shift createShift(Shift newShift, UUID token) {
         // todo: check admin permissions
-        final Profile shiftProfile = profileRepository.findById(newShift.getProfile().getId()).orElseThrow();
-        newShift.setProfile(shiftProfile);
+        if (newShift.getProfile().getId() != null) {
+            final Profile shiftProfile = profileRepository.findById(newShift.getProfile().getId()).orElseThrow();
+            newShift.setProfile(shiftProfile);
+        } else {
+            newShift.setProfile(null);
+        }
         return repository.save(newShift);
     }
 
