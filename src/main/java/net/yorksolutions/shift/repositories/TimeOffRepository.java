@@ -11,7 +11,10 @@ import net.yorksolutions.shift.models.TimeOff;
 
 @Repository
 public interface TimeOffRepository extends CrudRepository<TimeOff, UUID> {
-    List<TimeOff> findAllByStartDateAfterAndEndDateBefore(
+    List<TimeOff> findAllByEndDateAfter(
+            LocalDate startDate);
+
+    List<TimeOff> findAllByStartDateAfterAndEndDateBeforeAndApprovalIsNotNull(
             LocalDate startDate,
             LocalDate endDate);
 }

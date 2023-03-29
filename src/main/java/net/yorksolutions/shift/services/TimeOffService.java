@@ -1,6 +1,7 @@
 package net.yorksolutions.shift.services;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -31,5 +32,22 @@ public class TimeOffService {
         newTimeOffRequest.setProfile(myProfile);
         newTimeOffRequest.setApproval(null);
         return repository.save(newTimeOffRequest);
+    }
+
+    public List<TimeOff> getPendingTimeOff() {
+        return repository.findAllByEndDateAfter(LocalDate.now());
+    }
+
+    public TimeOff approveOrDenyTimeOff(TimeOff timeOff, UUID token) {
+        final UUID accountId = authService.checkToken(token);
+        final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        // todo: check admin
+        final TimeOff oldTimeOff = repository.findById(timeOff.getId()).orElseThrow();
+        if (timeOff.getProfile() == null) {
+            repository.deleteById(oldTimeOff.getId());
+            return oldTimeOff;
+        }
+        oldTimeOff.setApproval(myProfile);
+        return repository.save(oldTimeOff);
     }
 }
