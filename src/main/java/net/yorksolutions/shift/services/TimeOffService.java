@@ -22,13 +22,14 @@ public class TimeOffService {
         this.authService = authService;
     }
 
-    public TimeOff requestTimeOff(LocalDate starDate, LocalDate endDate, UUID token) {
+    public TimeOff requestTimeOff(TimeOff newRequest, UUID token) {
         final UUID accountId = authService.checkToken(token);
         final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
         final TimeOff newTimeOffRequest = new TimeOff();
-        newTimeOffRequest.setStartDate(starDate);
-        newTimeOffRequest.setEndDate(endDate);
+        newTimeOffRequest.setStartDate(newRequest.getStartDate());
+        newTimeOffRequest.setEndDate(newRequest.getEndDate());
         newTimeOffRequest.setProfile(myProfile);
+        newTimeOffRequest.setApproval(null);
         return repository.save(newTimeOffRequest);
     }
 }
