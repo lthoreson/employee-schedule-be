@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
@@ -43,7 +44,7 @@ public class ShiftController {
     }
 
     @GetMapping
-    public Iterable<Shift> getShifts(@RequestParam String dateParam) {
+    public List<List<Shift>> getShifts(@RequestParam String dateParam) {
         try {
             final var date = LocalDate.parse(dateParam);
             return service.getShifts(date);

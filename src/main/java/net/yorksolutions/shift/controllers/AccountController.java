@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import net.yorksolutions.shift.dto.Credentials;
+import net.yorksolutions.shift.models.Profile;
 import net.yorksolutions.shift.services.AccountService;
 
 @RestController
@@ -60,6 +61,15 @@ public class AccountController {
         try {
             final UUID token = UUID.fromString(requestHeader);
             return service.modAccount(cred, token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @GetMapping("/profiles")
+    public Iterable<Profile> getProfiles() {
+        try {
+            return service.getProfiles();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

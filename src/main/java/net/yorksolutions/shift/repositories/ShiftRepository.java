@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import net.yorksolutions.shift.models.Profile;
 import net.yorksolutions.shift.models.Shift;
 
 @Repository
@@ -20,7 +21,8 @@ public interface ShiftRepository extends CrudRepository<Shift, UUID> {
                         LocalDate startDate,
                         LocalDate endDate);
 
-        // @Query("select a from shift a where a.creationDateTime <= :creationDateTime")
-        // List<Shift> findAllWithCreationDateTimeBefore(
-        // @Param("creationDateTime") Date creationDateTime);
+        // @Query(value = "SELECT s FROM shift s WHERE s.profile_id=?3 AND s.date
+        // BETWEEN ?1 AND ?2", nativeQuery = true)
+        // List<Shift> findAllByCustom(LocalDate startDate, LocalDate endDate, UUID
+        // profileId);
 }

@@ -96,4 +96,8 @@ public class AccountService {
         newCred.setUsername(oldAccount.getUsername());
         return newCred;
     }
+
+    public Iterable<Profile> getProfiles() {
+        return profileRepository.findByOrderByLastName();
+    }
 }
