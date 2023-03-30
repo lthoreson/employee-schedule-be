@@ -1,5 +1,6 @@
 package net.yorksolutions.shift.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpHeaders;
@@ -67,7 +68,7 @@ public class AccountController {
     }
 
     @GetMapping("/profiles")
-    public Iterable<Profile> getProfiles() {
+    public List<Profile> getProfiles() {
         try {
             return service.getProfiles();
         } catch (Exception e) {

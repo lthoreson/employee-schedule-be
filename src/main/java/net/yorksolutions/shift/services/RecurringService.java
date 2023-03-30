@@ -65,7 +65,7 @@ public class RecurringService {
         // todo: check admin status
 
         // get all profiles
-        final Iterable<Profile> profiles = profileRepository.findByOrderByLastName();
+        final Iterable<Profile> profiles = profileRepository.findByAdminFalseOrderByLastName();
 
         // build array of recurring arrays for each profile, and unassigned
         final List<List<Recurring>> recurringsList = new ArrayList<>();

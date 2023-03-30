@@ -39,6 +39,12 @@ public class ShiftService {
         if (newShift.getProfile() != null) {
             final Profile shiftProfile = profileRepository.findById(newShift.getProfile().getId()).orElseThrow();
             newShift.setProfile(shiftProfile);
+            final var conflicts = timeOffRepository
+                    .findAllByProfileAndStartDateBeforeAndEndDateAfterAndApprovalIsNotNull(shiftProfile,
+                            newShift.getDate().plusDays(1), newShift.getDate().minusDays(1));
+            if (conflicts.size() > 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conflicts with approved time off");
+            }
         } else {
             newShift.setProfile(null);
         }
@@ -52,7 +58,7 @@ public class ShiftService {
         final var saturday = date.plusDays(6 - dayOfWeek % 7);
 
         // get all profiles
-        final Iterable<Profile> profiles = profileRepository.findByOrderByLastName();
+        final Iterable<Profile> profiles = profileRepository.findByAdminFalseOrderByLastName();
 
         // build array of shift arrays for each profile, and one for available shifts
         final List<List<Shift>> shiftList = new ArrayList<>();
@@ -86,6 +92,12 @@ public class ShiftService {
         final Shift myShift = repository.findById(shift.getId()).orElseThrow();
         if (myShift.getProfile() == null) {
             myShift.setProfile(myProfile);
+        }
+        final var conflicts = timeOffRepository
+                .findAllByProfileAndStartDateBeforeAndEndDateAfterAndApprovalIsNotNull(myProfile,
+                        myShift.getDate().plusDays(1), myShift.getDate().minusDays(1));
+        if (conflicts.size() > 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conflicts with approved time off");
         }
         return repository.save(myShift);
     }
@@ -139,7 +151,7 @@ public class ShiftService {
         final var saturday = date.plusDays(6 - dayOfWeek % 7);
 
         // get all profiles and shifts
-        final List<Profile> profiles = profileRepository.findByOrderByLastName();
+        final List<Profile> profiles = profileRepository.findByAdminFalseOrderByLastName();
 
         // get all available shifts
         final List<Shift> availableShifts = repository.findAllByProfileAndDateBetween(null, sunday, saturday);

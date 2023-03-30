@@ -1,5 +1,6 @@
 package net.yorksolutions.shift.services;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -98,7 +99,7 @@ public class AccountService {
         return newCred;
     }
 
-    public Iterable<Profile> getProfiles() {
-        return profileRepository.findByOrderByLastName();
+    public List<Profile> getProfiles() {
+        return profileRepository.findByAdminFalseOrderByLastName();
     }
 }

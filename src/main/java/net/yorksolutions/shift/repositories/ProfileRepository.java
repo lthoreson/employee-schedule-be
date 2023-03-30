@@ -13,5 +13,5 @@ import net.yorksolutions.shift.models.Profile;
 public interface ProfileRepository extends CrudRepository<Profile, UUID> {
     Optional<Profile> findByAccountId(UUID accountId);
 
-    List<Profile> findByOrderByLastName();
+    List<Profile> findByAdminFalseOrderByLastName();
 }
