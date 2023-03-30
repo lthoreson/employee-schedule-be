@@ -2,16 +2,10 @@ package net.yorksolutions.shift.services;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.criteria.Predicate;
 import net.yorksolutions.shift.models.Profile;
 import net.yorksolutions.shift.models.Shift;
 import net.yorksolutions.shift.repositories.ProfileRepository;
@@ -31,7 +25,7 @@ public class ShiftService {
 
     public Shift createShift(Shift newShift, UUID token) {
         // todo: check admin permissions
-        if (newShift.getProfile().getId() != null) {
+        if (newShift.getProfile() != null) {
             final Profile shiftProfile = profileRepository.findById(newShift.getProfile().getId()).orElseThrow();
             newShift.setProfile(shiftProfile);
         } else {
@@ -46,9 +40,8 @@ public class ShiftService {
         final var weekStart = date.minusDays(dayOfWeek % 7);
         final var weekEnd = date.plusDays(6 - dayOfWeek % 7);
 
-        // get all profiles and shifts within the week
+        // get all profiles
         final Iterable<Profile> profiles = profileRepository.findByOrderByLastName();
-        final List<Shift> shifts = repository.findAllByDateBetween(weekStart, weekEnd);
 
         // build array of shift arrays for each profile, and one for available shifts
         final List<List<Shift>> shiftList = new ArrayList<>();
