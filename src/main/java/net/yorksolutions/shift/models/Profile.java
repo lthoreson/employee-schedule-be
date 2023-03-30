@@ -14,6 +14,15 @@ public class Profile {
     private String firstName;
     private String lastName;
     private UUID accountId;
+    private boolean admin = false;
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
 
     public UUID getId() {
         return id;

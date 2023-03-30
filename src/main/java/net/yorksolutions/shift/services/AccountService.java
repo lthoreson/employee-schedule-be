@@ -43,7 +43,7 @@ public class AccountService {
         newProfile.setAccountId(savedAccount.getId());
         newProfile.setFirstName("");
         newProfile.setLastName("");
-        // newProfile.setBranches(new HashSet<Branch>());
+        newProfile.setAdmin(cred.admin);
         profileRepository.save(newProfile);
 
         return authService.addToken(savedAccount.getId());
@@ -61,12 +61,13 @@ public class AccountService {
 
     public Credentials getAccount(UUID token) {
         final UUID accountId = authService.checkToken(token);
-        final Account oldAccount = repository.findById(accountId).orElseThrow();
-        final Profile oldProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        final Account account = repository.findById(accountId).orElseThrow();
+        final Profile profile = profileRepository.findByAccountId(accountId).orElseThrow();
         final var newCred = new Credentials();
-        newCred.setFirstName(oldProfile.getFirstName());
-        newCred.setLastName(oldProfile.getLastName());
-        newCred.setUsername(oldAccount.getUsername());
+        newCred.setFirstName(profile.getFirstName());
+        newCred.setLastName(profile.getLastName());
+        newCred.setUsername(account.getUsername());
+        newCred.setAdmin(profile.isAdmin());
         return newCred;
     }
 
