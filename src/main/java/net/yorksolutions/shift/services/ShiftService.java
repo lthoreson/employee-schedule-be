@@ -110,7 +110,7 @@ public class ShiftService {
                 // check for time off conflicts before assigning
                 final var conflicts = timeOffRepository
                         .findAllByProfileAndStartDateBeforeAndEndDateAfterAndApprovalIsNotNull(profile,
-                                newShift.getDate().minusDays(1), newShift.getDate().plusDays(1));
+                                newShift.getDate().plusDays(1), newShift.getDate().minusDays(1));
                 if (conflicts.size() == 0) {
                     newShift.setProfile(profile);
                 }
