@@ -35,7 +35,7 @@ public class TimeOffService {
     }
 
     public List<TimeOff> getPendingTimeOff() {
-        return repository.findAllByEndDateAfter(LocalDate.now());
+        return repository.findAllByEndDateAfter(LocalDate.now().minusDays(1));
     }
 
     public TimeOff approveOrDenyTimeOff(TimeOff timeOff, UUID token) {

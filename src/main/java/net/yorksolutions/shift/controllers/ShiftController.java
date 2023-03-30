@@ -63,6 +63,18 @@ public class ShiftController {
         }
     }
 
+    @GetMapping("/assign")
+    public List<List<Shift>> assignAllWeek(@RequestParam String dateParam,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String requestHeader) {
+        try {
+            final var date = LocalDate.parse(dateParam);
+            final UUID token = UUID.fromString(requestHeader);
+            return service.assignAllWeek(date, token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
     @PutMapping("/surrender")
     public Shift surrenderShift(@RequestBody Shift shift,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String requestHeader) {

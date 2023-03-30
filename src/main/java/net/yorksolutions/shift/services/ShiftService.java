@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import net.yorksolutions.shift.models.Profile;
 import net.yorksolutions.shift.models.Recurring;
@@ -53,9 +56,9 @@ public class ShiftService {
 
         // build array of shift arrays for each profile, and one for available shifts
         final List<List<Shift>> shiftList = new ArrayList<>();
-        final List<Shift> availableShiftsNew = repository.findAllByProfileAndDateBetween(null, sunday, saturday);
-        if (availableShiftsNew.size() > 0) {
-            shiftList.add(availableShiftsNew);
+        final List<Shift> availableShifts = repository.findAllByProfileAndDateBetween(null, sunday, saturday);
+        if (availableShifts.size() > 0) {
+            shiftList.add(availableShifts);
         }
         for (Profile p : profiles) {
             final List<Shift> filtered = repository.findAllByProfileAndDateBetween(p, sunday, saturday);
@@ -98,7 +101,7 @@ public class ShiftService {
         // get all recurrings
         final Iterable<Recurring> allRecurrings = recurringRepository.findAll();
 
-        // create lists of shifts from recurrings
+        // create list of shifts from recurrings
         final List<Shift> listOfShiftsToBeSaved = new ArrayList<>();
         for (Recurring r : allRecurrings) {
             final var newShift = new Shift();
@@ -118,6 +121,49 @@ public class ShiftService {
             listOfShiftsToBeSaved.add(newShift);
         }
         for (Shift s : listOfShiftsToBeSaved) {
+            repository.save(s);
+        }
+
+        return getShifts(date);
+    }
+
+    public List<List<Shift>> assignAllWeek(LocalDate date, UUID token) {
+        System.out.println("called assign");
+        final UUID accountId = authService.checkToken(token);
+        final Profile myProfile = profileRepository.findByAccountId(accountId).orElseThrow();
+        // todo: check admin
+
+        // get start and end of week Java version (1-7 = mon-sun)
+        final var dayOfWeek = date.getDayOfWeek().getValue();
+        final var sunday = date.minusDays(dayOfWeek % 7);
+        final var saturday = date.plusDays(6 - dayOfWeek % 7);
+
+        // get all profiles and shifts
+        final List<Profile> profiles = profileRepository.findByOrderByLastName();
+
+        // get all available shifts
+        final List<Shift> availableShifts = repository.findAllByProfileAndDateBetween(null, sunday, saturday);
+        if (availableShifts.size() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no shifts to assign");
+        }
+        for (Shift s : availableShifts) {
+            int i = 0;
+            boolean found = false;
+            while (i < profiles.size() && !found) {
+                System.out.println("inside while loop");
+                final var conflicts = timeOffRepository
+                        .findAllByProfileAndStartDateBeforeAndEndDateAfterAndApprovalIsNotNull(profiles.get(i),
+                                s.getDate().plusDays(1), s.getDate().minusDays(1));
+                if (conflicts.size() == 0) {
+                    s.setProfile(profiles.get(i));
+                    profiles.add(profiles.get(i));
+                    profiles.remove(i);
+                    found = true;
+                }
+                i++;
+            }
+        }
+        for (Shift s : availableShifts) {
             repository.save(s);
         }
 
